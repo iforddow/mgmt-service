@@ -1,6 +1,6 @@
 package com.iforddow.mgmt.dto;
 
-import com.iforddow.mgmt.entity.BlockedIp;
+import com.iforddow.mgmt.entity.jpa.BlockedIp;
 
 import java.net.InetAddress;
 import java.time.Instant;

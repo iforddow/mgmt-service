@@ -1,3 +1,4 @@
+import '../styles/globals.css';
 import '@mantine/core/styles.css';
 
 import ProviderTree from '../components/layout/ProviderTree';

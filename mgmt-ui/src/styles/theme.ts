@@ -3,16 +3,16 @@ import { createTheme } from "@mantine/core";
 export const theme = createTheme({
   colors: {
     primary: [
-      "#dffbff",
-      "#caf2ff",
-      "#99e2ff",
-      "#64d2ff",
-      "#3cc4fe",
-      "#23bcfe",
-      "#00b5ff",
-      "#00a1e4",
-      "#008fcd",
-      "#007cb6",
+      "#e1f8ff",
+      "#cbedff",
+      "#9ad7ff",
+      "#64c1ff",
+      "#3aaefe",
+      "#20a2fe",
+      "#099cff",
+      "#0088e4",
+      "#0079cd",
+      "#0068b6",
     ],
     secondary: [
       "#e6ffee",
@@ -48,12 +48,21 @@ export const theme = createTheme({
 
   white: "#FFF",
 
+  shadows: {
+    xs: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    sm: "0 1px 5px rgba(0, 0, 0, 0.1)",
+    md: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    lg: "0 10px 15px rgba(0, 0, 0, 0.1)",
+    xl: "0 20px 25px rgba(0, 0, 0, 0.1)",
+    xxl: "0 25px 50px rgba(0, 0, 0, 0.25)",
+  },
+
   breakpoints: {
-    sm: "500",
-    md: "768",
-    lg: "992",
-    xl: "1200",
-    xxl: "1400",
+    sm: "500px",
+    md: "768px",
+    lg: "992px",
+    xl: "1200px",
+    xxl: "1400px",
   },
 
   autoContrast: true,
@@ -69,4 +78,21 @@ export const theme = createTheme({
   },
 
   defaultRadius: "md",
+
+  //! FONT SETTINGS
+
+  // Enable font smoothing
+  fontSmoothing: true,
+
+  // Font family for all components
+  fontFamily:
+    "Roboto, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif",
+
+  // Font family for headings
+  headings: {
+    fontFamily:
+      "Poppins, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif",
+  },
+
+  respectReducedMotion: true,
 });

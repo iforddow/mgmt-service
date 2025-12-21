@@ -1,8 +1,7 @@
 package com.iforddow.mgmt.controller;
 
-import com.iforddow.mgmt.common.records.AsnInfo;
+import com.iforddow.mgmt.dto.IpAddressInfoDTO;
 import com.iforddow.mgmt.service.IpAddressInfoService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 * */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/asn")
-public class AsnController {
+@RequestMapping("/ip")
+public class IpAddressInfoController {
 
     private final IpAddressInfoService ipAddressInfoService;
 
@@ -30,9 +29,9 @@ public class AsnController {
     * @since 2025-12-17
     * */
     @GetMapping("/")
-    public ResponseEntity<AsnInfo> getAsnInfo(@RequestParam String ipAddress, HttpServletRequest request) {
+    public ResponseEntity<IpAddressInfoDTO> getAsnInfo(@RequestParam String ipAddress) {
 
-        AsnInfo asnInfo = ipAddressInfoService.getAsnInfo(ipAddress);
+        IpAddressInfoDTO asnInfo = ipAddressInfoService.getIpAddressInfo(ipAddress);
 
         return ResponseEntity.ok(asnInfo);
 

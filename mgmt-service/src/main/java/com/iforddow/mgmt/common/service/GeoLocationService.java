@@ -1,7 +1,7 @@
-package com.iforddow.authservice.common.service;
+package com.iforddow.mgmt.common.service;
 
-import com.iforddow.authservice.auth.entity.entity.GeoLocation;
 import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.model.CityResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +33,7 @@ public class GeoLocationService {
      * @author IFD
      * @since 2025-11-09
      * */
-    public GeoLocationService(@Value("classpath:geoip/GeoLite2-City.mmdb") Resource database) throws IOException {
+    public GeoLocationService(@Value("classpath:geomind/GeoLite2-City.mmdb") Resource database) throws IOException {
         this.databaseReader = new DatabaseReader.Builder(database.getFile()).build();
     }
 
@@ -46,28 +46,11 @@ public class GeoLocationService {
      * @author IFD
      * @since 2025-11-09
      * */
-    public GeoLocation getLocation(String ipAddress) {
+    public CityResponse getLocationInfo(String ipAddress) throws IOException, GeoIp2Exception {
 
-        try {
+        InetAddress inetAddress = InetAddress.getByName(ipAddress);
 
-            InetAddress inetAddress = InetAddress.getByName(ipAddress);
-            CityResponse cityResponse = databaseReader.city(inetAddress);
-
-            return GeoLocation.builder()
-                    .country(cityResponse.getCountry().getName())
-                    .countryCode(cityResponse.getCountry().getIsoCode())
-                    .region(cityResponse.getMostSpecificSubdivision().getName())
-                    .city(cityResponse.getCity().getName())
-                    .build();
-
-        } catch (Exception e) {
-            return GeoLocation.builder()
-                    .country("Unknown")
-                    .countryCode("Unknown")
-                    .region("Unknown")
-                    .city("Unknown")
-                    .build();
-        }
+        return databaseReader.city(inetAddress);
 
     }
 

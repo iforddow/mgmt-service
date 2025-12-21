@@ -1,7 +1,7 @@
 package com.iforddow.mgmt.common.config;
 
-import com.iforddow.mgmt.entity.BlockedAsn;
-import com.iforddow.mgmt.entity.BlockedIp;
+import com.iforddow.mgmt.entity.jpa.BlockedAsn;
+import com.iforddow.mgmt.entity.jpa.BlockedIp;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;

@@ -2,7 +2,7 @@ package com.iforddow.mgmt.service;
 
 import com.iforddow.mgmt.common.exception.ResourceNotFoundException;
 import com.iforddow.mgmt.dto.BlockedAsnDTO;
-import com.iforddow.mgmt.entity.BlockedAsn;
+import com.iforddow.mgmt.entity.jpa.BlockedAsn;
 import com.iforddow.mgmt.repository.BlockedAsnRepository;
 import com.iforddow.mgmt.repository.BlockedIpRepository;
 import com.iforddow.mgmt.request.BlockedAsnRequest;

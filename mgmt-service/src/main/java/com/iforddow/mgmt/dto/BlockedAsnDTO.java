@@ -1,6 +1,6 @@
 package com.iforddow.mgmt.dto;
 
-import com.iforddow.mgmt.entity.BlockedAsn;
+import com.iforddow.mgmt.entity.jpa.BlockedAsn;
 
 import java.time.Instant;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.iforddow.mgmt.entity;
+package com.iforddow.mgmt.entity.jpa;
 
 import jakarta.persistence.*;
 import lombok.*;

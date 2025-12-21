@@ -1,7 +1,7 @@
 package com.iforddow.mgmt.common.service;
 
-import com.iforddow.mgmt.common.records.AsnInfo;
 import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.model.AsnResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -28,30 +28,10 @@ public class GeoAsnService {
         this.databaseReader = new DatabaseReader.Builder(database.getInputStream()).build();
     }
 
-    public AsnInfo lookup(String ip) {
+    public AsnResponse getAsnInfo(String ip) throws IOException, GeoIp2Exception {
 
-        try {
+        InetAddress address = InetAddress.getByName(ip);
 
-            InetAddress address = InetAddress.getByName(ip);
-            AsnResponse response = databaseReader.asn(address);
-
-            if (response == null) {
-                return null;
-            }
-
-            String asnNumber = response.getAutonomousSystemNumber().toString();
-            String asnOrganization = response.getAutonomousSystemOrganization();
-
-            return new AsnInfo(
-                    asnNumber,
-                    asnOrganization
-            );
-
-        } catch (Exception e) {
-            return new AsnInfo(
-                    "Unknown",
-                    "Unknown"
-            );
-        }
+        return databaseReader.asn(address);
     }
 }
