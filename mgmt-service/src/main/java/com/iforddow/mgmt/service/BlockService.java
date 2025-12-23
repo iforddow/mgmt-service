@@ -2,6 +2,7 @@ package com.iforddow.mgmt.service;
 
 import com.iforddow.mgmt.common.exception.ResourceNotFoundException;
 import com.iforddow.mgmt.dto.BlockedAsnDTO;
+import com.iforddow.mgmt.dto.BlockedIpDTO;
 import com.iforddow.mgmt.entity.jpa.BlockedAsn;
 import com.iforddow.mgmt.repository.BlockedAsnRepository;
 import com.iforddow.mgmt.repository.BlockedIpRepository;
@@ -39,6 +40,17 @@ public class BlockService {
     public Page<BlockedAsnDTO> getBlockedAsnList(Pageable pageable) {
         return blockedAsnRepository.findAll(pageable)
                 .map(BlockedAsnDTO::new);
+    }
+
+    /**
+    * A method to get the list of blocked IPs with pagination.
+    *
+    * @author IFD
+    * @since 2025-12-23
+    * */
+    public Page<BlockedIpDTO> getBlockedIpList(Pageable pageable) {
+        return blockedIpRepository.findAll(pageable)
+                .map(BlockedIpDTO::new);
     }
 
     /*

@@ -1,6 +1,7 @@
 package com.iforddow.mgmt.controller;
 
 import com.iforddow.mgmt.dto.BlockedAsnDTO;
+import com.iforddow.mgmt.dto.BlockedIpDTO;
 import com.iforddow.mgmt.request.BlockedAsnRequest;
 import com.iforddow.mgmt.service.BlockService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,21 @@ public class BlockController {
 
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(blockService.getBlockedAsnList(pageable));
+    }
+
+    /**
+    * An endpoint to get a list of blocked IPs with pagination.
+    *
+    * @author IFD
+    * @since 2025-12-23
+    * */
+    @GetMapping("/ip")
+    public ResponseEntity<Page<BlockedIpDTO>> getBlockedIpList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(blockService.getBlockedIpList(pageable));
     }
 
     /**

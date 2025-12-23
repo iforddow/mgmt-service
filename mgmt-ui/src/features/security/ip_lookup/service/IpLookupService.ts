@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import type { IpAddressInfoType } from "../../../types/IpAddressInfoType";
-import { API_BASE_URL } from "../../../lib/config";
+import type { IpAddressInfoType } from "../../../../types/IpAddressInfoType";
+import { API_BASE_URL } from "../../../../lib/config";
 
 // Service function to fetch IP info for an IP address
 async function fetchIpInfo(ipAddress: string): Promise<IpAddressInfoType> {

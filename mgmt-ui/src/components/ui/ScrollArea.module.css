@@ -1,0 +1,50 @@
+.root {
+    height: 100%;
+}
+
+.viewport {
+    height: 100%;
+}
+
+.viewport > div {
+    min-height: 100%;
+    display: flex !important;
+    flex-direction: column;
+}
+
+.scrollbar {
+    background-color: var(--mantine-color-gray-1);
+    border-radius: var(--mantine-radius-md);
+    padding: 2px;
+}
+
+.scrollbar:hover {
+    background-color: var(--mantine-color-gray-2);
+}
+
+.thumb {
+    background-color: var(--mantine-color-primary-4);
+    border-radius: var(--mantine-radius-md);
+    transition: background-color 150ms ease;
+}
+
+.thumb:hover {
+    background-color: var(--mantine-color-primary-5);
+}
+
+/* Dark mode support */
+:where([data-mantine-color-scheme='dark']) .scrollbar {
+    background-color: var(--mantine-color-dark-6);
+}
+
+:where([data-mantine-color-scheme='dark']) .scrollbar:hover {
+    background-color: var(--mantine-color-dark-5);
+}
+
+:where([data-mantine-color-scheme='dark']) .thumb {
+    background-color: var(--mantine-color-primary-6);
+}
+
+:where([data-mantine-color-scheme='dark']) .thumb:hover {
+    background-color: var(--mantine-color-primary-5);
+}

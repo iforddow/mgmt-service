@@ -59,13 +59,13 @@ const IpLookupForm = forwardRef<IpLookupFormRef, IpLookupFormProps>(({
 
     // Render the form and results
     return (
-        <Box w={"50%"} maw={500} miw={290} mb={"md"}>
-            <Flex w="100%" justify="space-between" align="center" mb="0.25rem">
-                <Title fw={600} size="md">IP Lookup</Title>
+        <Box w="100%">
+            <Flex w="100%" justify="space-between" align="center" mb="xs">
+                <Title fw={600} size="lg">IP Lookup</Title>
                 <Tooltip
                     label="This tool displays ASN and location details for an IP address when available."
                     multiline
-                    w={300}
+                    w={280}
                     withArrow
                     position="left"
                 >
@@ -77,15 +77,25 @@ const IpLookupForm = forwardRef<IpLookupFormRef, IpLookupFormProps>(({
             <form onSubmit={form.onSubmit(handleSubmit)}>
                 <TextInput
                     size='md'
-                    placeholder="Enter IP address"
+                    placeholder="e.g. 8.8.8.8"
                     key={form.key('ipAddress')}
                     {...form.getInputProps('ipAddress')}
+                    styles={{
+                        input: {
+                            transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                        }
+                    }}
                     rightSection={
                         isLoading ? (
                             <Loader size={16} />
                         ) :
                             (
-                                <ActionIcon type='submit' variant='light' color={form.errors.ipAddress ? 'error' : 'primary'}>
+                                <ActionIcon
+                                    type='submit'
+                                    variant='light'
+                                    color={form.errors.ipAddress ? 'error' : 'primary'}
+                                    style={{ transition: 'transform 0.15s ease' }}
+                                >
                                     <IconSearch size={16} />
                                 </ActionIcon>
                             )

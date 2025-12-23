@@ -1,53 +1,66 @@
-import { useState } from 'react';
 import {
-    IconChartBar,
-    IconLogout,
-    IconReport,
-    IconServer,
-    IconSettings,
+    IconAdjustments,
+    IconCalendarStats,
+    IconFileAnalytics,
+    IconGauge,
+    IconLogs,
+    IconPresentationAnalytics,
+    IconShield,
 } from '@tabler/icons-react';
+import { Code, ScrollArea } from '@mantine/core';
+import { LinksGroup } from './navbar_links/NavbarLinksGroup';
 import classes from './Navbar.module.css';
 
 const data = [
-    { link: '', label: 'Services', icon: IconServer },
-    { link: '', label: 'Analytics', icon: IconChartBar },
-    { link: '', label: 'Reports', icon: IconReport },
-    { link: '', label: 'Settings', icon: IconSettings },
+    { label: 'Dashboard', icon: IconGauge, link: '/' },
+    {
+        label: 'Server Logs',
+        icon: IconLogs,
+        initiallyOpened: false,
+        links: [
+            { label: 'Overview', link: '/logs/overview' },
+            { label: 'Forecasts', link: '/logs/forecasts' },
+            { label: 'Outlook', link: '/logs/outlook' },
+            { label: 'Real time', link: '/logs/realtime' },
+        ],
+    },
+    {
+        label: 'Releases',
+        icon: IconCalendarStats,
+        links: [
+            { label: 'Upcoming releases', link: '/releases/upcoming' },
+            { label: 'Previous releases', link: '/releases/previous' },
+            { label: 'Releases schedule', link: '/releases/schedule' },
+        ],
+    },
+    { label: 'Analytics', icon: IconPresentationAnalytics, link: '/analytics' },
+    { label: 'Contracts', icon: IconFileAnalytics, link: '/contracts' },
+    { label: 'Settings', icon: IconAdjustments, link: '/settings' },
+    {
+        label: 'Security',
+        icon: IconShield,
+        links: [
+            { label: 'IP Lookup', link: '/security/ip-lookup' },
+            { label: 'Block List', link: '/security/blocklist' },
+            { label: 'Add Block Rule', link: '/security/blocklist/add' },
+        ],
+    },
 ];
 
-export function Navbar() {
-    const [active, setActive] = useState('Billing');
-
-    const links = data.map((item) => (
-        <a
-            className={classes.link}
-            data-active={item.label === active || undefined}
-            href={item.link}
-            key={item.label}
-            onClick={(event) => {
-                event.preventDefault();
-                setActive(item.label);
-            }}
-        >
-            <item.icon className={classes.linkIcon} stroke={1.5} />
-            <span>{item.label}</span>
-        </a>
-    ));
+export default function Navbar() {
+    const links = data.map((item) => <LinksGroup {...item} key={item.label} />);
 
     return (
         <nav className={classes.navbar}>
-            <div className={classes.navbarMain}>
+
+            <ScrollArea className={classes.links}>
                 {links}
-            </div>
+            </ScrollArea>
+
             <div className={classes.footer}>
-                <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
-                    <IconSettings className={classes.linkIcon} stroke={1.5} />
-                    <span>Settings</span>
-                </a>
-                <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
-                    <IconLogout className={classes.linkIcon} stroke={1.5} />
-                    <span>Logout</span>
-                </a>
+                <Code fw={700} className={classes.version}>
+                    v0.1.0
+                </Code>
             </div>
         </nav>
     );
