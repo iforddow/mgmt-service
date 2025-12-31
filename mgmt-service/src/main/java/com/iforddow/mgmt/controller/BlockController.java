@@ -3,6 +3,7 @@ package com.iforddow.mgmt.controller;
 import com.iforddow.mgmt.dto.BlockedAsnDTO;
 import com.iforddow.mgmt.dto.BlockedIpDTO;
 import com.iforddow.mgmt.request.BlockedAsnRequest;
+import com.iforddow.mgmt.request.BlockedIpRequest;
 import com.iforddow.mgmt.service.BlockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -61,8 +62,14 @@ public class BlockController {
     * @since 2025-12-16
     * */
     @PostMapping("/asn")
-    public ResponseEntity<?> addBlockedAsn(BlockedAsnRequest blockedAsnRequest) {
+    public ResponseEntity<?> addBlockedAsn(@RequestBody BlockedAsnRequest blockedAsnRequest) {
         blockService.addBlockedAsn(blockedAsnRequest);
         return ResponseEntity.ok().body("ASN blocked successfully");
+    }
+
+    @PostMapping("/ip")
+    public ResponseEntity<?> addBlockedIp(@RequestBody BlockedIpRequest blockedIpRequest) {
+        blockService.addBlockedIp(blockedIpRequest);
+        return ResponseEntity.ok().body("IP blocked successfully");
     }
 }

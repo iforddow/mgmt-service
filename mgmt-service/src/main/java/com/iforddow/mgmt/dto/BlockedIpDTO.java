@@ -6,9 +6,9 @@ import java.net.InetAddress;
 import java.time.Instant;
 import java.util.UUID;
 
-public record BlockedIpDTO(UUID id, InetAddress ipAddress, InetAddress cidrRange, String scope, String serviceName, UUID accountId,
-                           String reason, String blockType, Integer severity, Instant blockedAt, Instant expiresAt, String createdBy,
-                           Instant lastHitAt, Long hitCount, Boolean isActive) {
+public record BlockedIpDTO(UUID id, InetAddress ipAddress, Integer cidrRange, String scope, String serviceName, UUID accountId,
+                           String reason, String reasonNotes, String blockType, Integer severity, Instant blockedAt, Instant expiresAt, String createdBy,
+                           Instant lastHitAt, Long hitCount) {
 
     public BlockedIpDTO(BlockedIp blockedIp) {
         this(
@@ -19,14 +19,14 @@ public record BlockedIpDTO(UUID id, InetAddress ipAddress, InetAddress cidrRange
                 blockedIp.getServiceName(),
                 blockedIp.getAccountId(),
                 blockedIp.getReason(),
+                blockedIp.getReasonNotes(),
                 blockedIp.getBlockType(),
                 Integer.valueOf(blockedIp.getSeverity()),
                 blockedIp.getBlockedAt(),
                 blockedIp.getExpiresAt(),
                 blockedIp.getCreatedBy(),
                 blockedIp.getLastHitAt(),
-                blockedIp.getHitCount(),
-                blockedIp.getIsActive()
+                blockedIp.getHitCount()
         );
     }
 

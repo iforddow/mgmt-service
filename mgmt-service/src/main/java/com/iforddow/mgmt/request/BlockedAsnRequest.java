@@ -20,11 +20,10 @@ public class BlockedAsnRequest {
     private String asnOrg;
     private @NonNull String scope;
     private String serviceName;
-    private UUID accountId;
     private @NonNull String reason;
+    private String reasonNotes;
     private @NonNull String blockType;
     private @NonNull Integer severity;
-    private Instant expiresAt;
-    private @NonNull Boolean isActive;
+    private String expiresAt;
 
 }

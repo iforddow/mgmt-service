@@ -1,0 +1,23 @@
+export type IpInfoType = {
+  asnNumber: string;
+  asnOrganization: string;
+  network: string;
+  continent: string;
+  country: string;
+  region: string;
+  city: string;
+  accuracyRadius: number;
+  latitude: number;
+  longitude: number;
+  timeZone: string;
+  postalCode: string;
+  countryIsoCode: string;
+  isAnonymous: boolean;
+  isAnonymousVpn: boolean;
+  isAnycast: boolean;
+  isHostingProvider: boolean;
+  isLegitimateProxy: boolean;
+  isPublicProxy: boolean;
+  isResidentialProxy: boolean;
+  isTorExitNode: boolean;
+};

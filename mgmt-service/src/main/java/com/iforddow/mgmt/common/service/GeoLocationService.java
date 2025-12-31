@@ -34,7 +34,7 @@ public class GeoLocationService {
      * @since 2025-11-09
      * */
     public GeoLocationService(@Value("classpath:geomind/GeoLite2-City.mmdb") Resource database) throws IOException {
-        this.databaseReader = new DatabaseReader.Builder(database.getFile()).build();
+        this.databaseReader = new DatabaseReader.Builder(database.getInputStream()).build();
     }
 
     /**
