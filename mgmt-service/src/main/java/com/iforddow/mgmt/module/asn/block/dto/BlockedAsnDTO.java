@@ -1,6 +1,6 @@
-package com.iforddow.mgmt.dto;
+package com.iforddow.mgmt.module.asn.block.dto;
 
-import com.iforddow.mgmt.entity.jpa.BlockedAsn;
+import com.iforddow.mgmt.module.asn.block.entity.jpa.BlockedAsn;
 
 import java.time.Instant;
 import java.util.UUID;

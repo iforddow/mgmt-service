@@ -74,45 +74,42 @@ export default function AddBlockedIpForm({ setDialogState }: { setDialogState?: 
                     <Spinner className="w-[10%] h-[10%]" />
                 </div>
             )}
-            <ScrollArea className="h-[90vh]">
+            <ScrollArea className="h-[90vh] md:h-auto">
                 <form id="form-blocked-ip" onSubmit={form.handleSubmit(async (data) => {
                     setIsLoading(true);
 
-                    setTimeout(async () => {
+                    try {
+                        await addBlockedIp(data);
 
-                        try {
-                            await addBlockedIp(data);
+                        form.reset();
+                        setDialogState && setDialogState(false);
 
-                            form.reset();
-                            setDialogState && setDialogState(false);
+                        toast.success("IP Blocked", {
+                            id: "add-blocked-ip-success",
+                            description: `The IP address ${data.ipAddress} has been blocked successfully.`,
+                            action: {
+                                label: "Close",
+                                onClick: () => toast.dismiss("add-blocked-ip-success"),
+                            },
+                        })
+                    } catch (error) {
 
-                            toast.success("IP Blocked", {
-                                id: "add-blocked-ip-success",
-                                description: `The IP address ${data.ipAddress} has been blocked successfully.`,
-                                action: {
-                                    label: "Close",
-                                    onClick: () => toast.dismiss("add-blocked-ip-success"),
-                                },
-                            })
-                        } catch (error) {
-
-                            let errorMessage = "An unexpected error occurred.";
-                            if (error instanceof Error) {
-                                errorMessage = error.message;
-                            }
-
-                            toast.error("Failed to block IP", {
-                                id: "add-blocked-ip-error",
-                                description: errorMessage,
-                                action: {
-                                    label: "Close",
-                                    onClick: () => toast.dismiss("add-blocked-ip-error"),
-                                },
-                            })
-                        } finally {
-                            setIsLoading(false);
+                        let errorMessage = "An unexpected error occurred.";
+                        if (error instanceof Error) {
+                            errorMessage = error.message;
                         }
-                    }, 5000);
+
+                        toast.error("Failed to block IP", {
+                            id: "add-blocked-ip-error",
+                            description: errorMessage,
+                            action: {
+                                label: "Close",
+                                onClick: () => toast.dismiss("add-blocked-ip-error"),
+                            },
+                        })
+                    } finally {
+                        setIsLoading(false);
+                    }
                 })}>
                     <FieldGroup>
                         <FieldSet>

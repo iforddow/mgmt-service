@@ -1,4 +1,4 @@
-package com.iforddow.mgmt.module.system.settings.entity.jpa;
+package com.iforddow.mgmt.module.system.settings.settings.entity.jpa;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -7,13 +7,18 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 
+/**
+* A system setting entity representing configuration settings for the application.
+*
+* @author IFD
+* @since 2026-01-03
+* */
 @Getter
 @Setter
 @Entity
 @Table(name = "system_setting")
 public class SystemSetting {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
@@ -31,11 +36,11 @@ public class SystemSetting {
     @Column(name = "logo_url")
     private String logoUrl;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private Instant updatedAt;
 
     @ColumnDefault("now()")
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
 

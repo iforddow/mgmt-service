@@ -1,12 +1,9 @@
-package com.iforddow.mgmt.request;
+package com.iforddow.mgmt.module.ip.block.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
-import java.time.Instant;
-import java.util.UUID;
 
 /*
 * A request class to represent blocked IP data.

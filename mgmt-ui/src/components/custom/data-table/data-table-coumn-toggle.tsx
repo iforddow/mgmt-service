@@ -61,7 +61,7 @@ export function DataTableViewOptions<TData>({
                     Toggle columns
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <div className="max-h-96 overflow-y-auto">
+                <div className="max-h-96 overflow-y-auto custom-scrollbar">
                     {table
                         .getAllColumns()
                         .filter(

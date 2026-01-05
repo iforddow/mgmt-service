@@ -1,14 +1,15 @@
-package com.iforddow.mgmt.controller;
+package com.iforddow.mgmt.module.ip.block.controller;
 
-import com.iforddow.mgmt.dto.BlockedIpDTO;
-import com.iforddow.mgmt.request.BlockedIpRequest;
-import com.iforddow.mgmt.service.IpBlockService;
+import com.iforddow.mgmt.module.ip.block.dto.BlockedIpDTO;
+import com.iforddow.mgmt.module.ip.block.request.BlockedIpRequest;
+import com.iforddow.mgmt.module.ip.block.service.IpBlockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/block/ip")
+@RestController
+@RequestMapping("/block/ip")
 @RequiredArgsConstructor
 public class IpBlockController {
 
@@ -20,7 +21,7 @@ public class IpBlockController {
      * @author IFD
      * @since 2025-12-23
      * */
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<Page<BlockedIpDTO>> getBlockedIpList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -36,7 +37,7 @@ public class IpBlockController {
     * @author IFD
     * @since 2025-12-30
     * */
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<?> addBlockedIp(@RequestBody BlockedIpRequest blockedIpRequest) {
         ipBlockService.addBlockedIp(blockedIpRequest);
         return ResponseEntity.ok().body("IP blocked successfully");

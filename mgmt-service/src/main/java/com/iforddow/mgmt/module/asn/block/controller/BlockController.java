@@ -1,10 +1,8 @@
-package com.iforddow.mgmt.controller;
+package com.iforddow.mgmt.module.asn.block.controller;
 
-import com.iforddow.mgmt.dto.BlockedAsnDTO;
-import com.iforddow.mgmt.dto.BlockedIpDTO;
-import com.iforddow.mgmt.request.BlockedAsnRequest;
-import com.iforddow.mgmt.request.BlockedIpRequest;
-import com.iforddow.mgmt.service.BlockService;
+import com.iforddow.mgmt.module.asn.block.dto.BlockedAsnDTO;
+import com.iforddow.mgmt.module.asn.block.request.BlockedAsnRequest;
+import com.iforddow.mgmt.module.asn.block.service.AsnBlockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BlockController {
 
-    private final BlockService blockService;
+    private final AsnBlockService asnBlockService;
 
     /**
     * An endpoint to get the list of blocked ASNs with pagination.
@@ -37,22 +35,7 @@ public class BlockController {
             @RequestParam(defaultValue = "20") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(blockService.getBlockedAsnList(pageable));
-    }
-
-    /**
-    * An endpoint to get a list of blocked IPs with pagination.
-    *
-    * @author IFD
-    * @since 2025-12-23
-    * */
-    @GetMapping("/ip")
-    public ResponseEntity<Page<BlockedIpDTO>> getBlockedIpList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(blockService.getBlockedIpList(pageable));
+        return ResponseEntity.ok(asnBlockService.getBlockedAsnList(pageable));
     }
 
     /**
@@ -63,13 +46,7 @@ public class BlockController {
     * */
     @PostMapping("/asn")
     public ResponseEntity<?> addBlockedAsn(@RequestBody BlockedAsnRequest blockedAsnRequest) {
-        blockService.addBlockedAsn(blockedAsnRequest);
+        asnBlockService.addBlockedAsn(blockedAsnRequest);
         return ResponseEntity.ok().body("ASN blocked successfully");
-    }
-
-    @PostMapping("/ip")
-    public ResponseEntity<?> addBlockedIp(@RequestBody BlockedIpRequest blockedIpRequest) {
-        blockService.addBlockedIp(blockedIpRequest);
-        return ResponseEntity.ok().body("IP blocked successfully");
     }
 }

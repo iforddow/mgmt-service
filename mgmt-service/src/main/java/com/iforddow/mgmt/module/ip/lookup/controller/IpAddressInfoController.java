@@ -1,7 +1,7 @@
-package com.iforddow.mgmt.controller;
+package com.iforddow.mgmt.module.ip.lookup.controller;
 
-import com.iforddow.mgmt.dto.IpAddressInfoDTO;
-import com.iforddow.mgmt.service.IpAddressInfoService;
+import com.iforddow.mgmt.module.ip.lookup.dto.IpAddressInfoDTO;
+import com.iforddow.mgmt.module.ip.lookup.service.IpAddressInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

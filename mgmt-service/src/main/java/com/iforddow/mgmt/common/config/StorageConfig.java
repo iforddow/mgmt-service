@@ -1,18 +1,40 @@
 package com.iforddow.mgmt.common.config;
 
+import com.iforddow.mgmt.module.system.settings.storage.service.StorageSettingService;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 
+/**
+* A configuration class to hold storage settings.
+*
+* @author IFD
+* @since 2026-01-04
+* */
 @Configuration
-public class CloudflareR2Config {
+@RequiredArgsConstructor
+@Getter
+public class StorageConfig {
 
-    private String accessKey;
+    private final StorageSettingService storageSettingService;
 
-    private String secretKey;
+    public String getAccessKey() {
+        return storageSettingService.getStorageSettings().accessKey();
+    }
 
-    private String endpoint;
+    public String getSecretKey() {
+        return storageSettingService.getStorageSettings().secretKey();
+    }
 
-    private String bucketName;
+    public String getEndpoint() {
+        return storageSettingService.getStorageSettings().endpoint();
+    }
 
-    private String publicUrl;
+    public String getBucketName() {
+        return storageSettingService.getStorageSettings().bucketName();
+    }
 
+    public String getPublicUrl() {
+        return storageSettingService.getStorageSettings().publicUrl();
+    }
 }

@@ -1,210 +1,55 @@
 import BaseLayout from "@/components/layout/base-layout";
 import { blockedIpColumns } from "./components/blocked-ip-data-tabel/blocked-ip-columns";
 import DataTable from "@/components/custom/data-table/data-table";
-import type { BlockedIpType } from "./types/blocked-ip-type";
 import { BlockedIpToolbar } from "./components/blocked-ip-data-tabel/blocked-ip-toolbar";
+import { useBlockedIps } from "./services/blocked-ip-service";
+import type { BlockedIpType } from "./types/blocked-ip-type";
+import { useState } from "react";
+import { BlockedIpAdvancedFilter, defaultFilterState, type BlockedIpFilterState } from "./components/blocked-ip-data-tabel/filter/blocked-ip-advanced-filter";
+import { processFilters } from "./components/blocked-ip-data-tabel/filter/service/filter-processor";
 
 export default function BlockedIpPage() {
 
-    const blockedIps: BlockedIpType[] = [
-        {
-            id: '1',
-            ipAddress: '192.168.1.100',
-            cidrRange: '/32',
-            scope: 'global',
-            serviceName: 'auth-service',
-            accountId: 'ACC-001',
-            reason: 'Multiple failed login attempts detected',
-            blockType: 'temporary',
-            severity: 3,
-            blockedAt: '2025-12-27T14:30:00Z',
-            expiresAt: '2025-12-28T14:30:00Z',
-            createdBy: 'system',
-            lastHitAt: '2025-12-27T16:45:00Z',
-            hitCount: 127,
-            reasonNotes: 'This IP has been involved in multiple failed login attempts within a short period, indicating potential brute-force attack activity. The block is temporary to mitigate further attempts while monitoring continues.',
-        },
-        {
-            id: '2',
-            ipAddress: '10.0.0.0',
-            cidrRange: '/8',
-            scope: 'service',
-            serviceName: 'api-gateway',
-            accountId: 'ACC-002',
-            reason: 'Suspicious API scraping activity',
-            blockType: 'permanent',
-            severity: 5,
-            blockedAt: '2025-12-20T09:15:00Z',
-            expiresAt: '',
-            createdBy: 'admin@company.com',
-            lastHitAt: '2025-12-28T08:12:00Z',
-            hitCount: 2341,
-            reasonNotes: 'This IP range has been identified as the source of extensive API scraping activity that violates our terms of service. The block is permanent to prevent further abuse.',
-        },
-        {
-            id: '3',
-            ipAddress: '203.0.113.45',
-            cidrRange: '/32',
-            scope: 'global',
-            serviceName: 'payment-service',
-            accountId: 'ACC-003',
-            reason: 'Known malicious actor - fraud attempts',
-            blockType: 'permanent',
-            severity: 5,
-            blockedAt: '2025-11-15T22:00:00Z',
-            expiresAt: '',
-            createdBy: 'security-team',
-            lastHitAt: '2025-12-25T03:22:00Z',
-            hitCount: 89,
-            reasonNotes: 'This IP has been linked to multiple fraud attempts targeting our payment processing systems. Continuous monitoring has confirmed its malicious intent.',
-        },
-        {
-            id: '4',
-            ipAddress: '172.16.50.0',
-            cidrRange: '/24',
-            scope: 'account',
-            serviceName: 'user-service',
-            accountId: 'ACC-004',
-            reason: 'DDoS attack source',
-            blockType: 'temporary',
-            severity: 4,
-            blockedAt: '2025-12-26T11:00:00Z',
-            expiresAt: '2025-12-29T11:00:00Z',
-            createdBy: 'auto-defense',
-            lastHitAt: '2025-12-26T11:45:00Z',
-            hitCount: 15420,
-            reasonNotes: 'This IP range has been identified as the source of a recent DDoS attack targeting our user-service endpoints. The block is temporary while we monitor for further malicious activity.',
-        },
-        {
-            id: '5',
-            ipAddress: '198.51.100.23',
-            cidrRange: '/32',
-            scope: 'service',
-            serviceName: 'auth-service',
-            accountId: 'ACC-005',
-            reason: 'Brute force password attack',
-            blockType: 'temporary',
-            severity: 4,
-            blockedAt: '2025-12-28T02:30:00Z',
-            expiresAt: '2025-12-29T02:30:00Z',
-            createdBy: 'system',
-            lastHitAt: '2025-12-28T02:28:00Z',
-            hitCount: 543,
-            reasonNotes: 'This IP has been involved in multiple brute force password attempts targeting user accounts on the auth-service. Monitoring will continue to assess if further action is needed.',
-        },
-        {
-            id: '6',
-            ipAddress: '45.33.32.156',
-            cidrRange: '/32',
-            scope: 'global',
-            serviceName: 'inventory-service',
-            accountId: 'ACC-006',
-            reason: 'SQL injection attempts',
-            blockType: 'permanent',
-            severity: 5,
-            blockedAt: '2025-12-10T18:20:00Z',
-            expiresAt: '',
-            createdBy: 'waf-system',
-            lastHitAt: '2025-12-27T09:10:00Z',
-            hitCount: 312,
-            reasonNotes: 'Numerous SQL injection attempts detected targeting the inventory database endpoints.',
-        },
-        {
-            id: '7',
-            ipAddress: '185.220.101.0',
-            cidrRange: '/24',
-            scope: 'global',
-            serviceName: 'all',
-            accountId: '',
-            reason: 'Tor exit node - policy violation',
-            blockType: 'permanent',
-            severity: 2,
-            blockedAt: '2025-10-01T00:00:00Z',
-            expiresAt: '',
-            createdBy: 'policy-engine',
-            lastHitAt: '2025-12-28T07:55:00Z',
-            hitCount: 8923,
-            reasonNotes: 'This IP range is known to be used by Tor exit nodes, which are often associated with anonymized traffic that may violate our usage policies.',
-        },
-        {
-            id: '8',
-            ipAddress: '91.134.200.77',
-            cidrRange: '/32',
-            scope: 'account',
-            serviceName: 'billing-service',
-            accountId: 'ACC-008',
-            reason: 'Credential stuffing detected',
-            blockType: 'temporary',
-            severity: 3,
-            blockedAt: '2025-12-27T20:15:00Z',
-            expiresAt: '2025-12-30T20:15:00Z',
-            createdBy: 'system',
-            lastHitAt: '2025-12-27T20:14:00Z',
-            hitCount: 78,
-            reasonNotes: 'User reports multiple failed login attempts from this IP.',
-        },
-        {
-            id: '9',
-            ipAddress: '91.134.200.77',
-            cidrRange: '/32',
-            scope: 'account',
-            serviceName: 'billing-service',
-            accountId: 'ACC-008',
-            reason: 'Credential stuffing detected',
-            blockType: 'temporary',
-            severity: 3,
-            blockedAt: '2025-12-27T20:15:00Z',
-            expiresAt: '2025-12-30T20:15:00Z',
-            createdBy: 'system',
-            lastHitAt: '2025-12-27T20:14:00Z',
-            hitCount: 78,
-            reasonNotes: 'User reports multiple failed login attempts from this IP.',
-        },
-        {
-            id: '10',
-            ipAddress: '91.134.200.77',
-            cidrRange: '/32',
-            scope: 'account',
-            serviceName: 'billing-service',
-            accountId: 'ACC-008',
-            reason: 'Credential stuffing detected',
-            blockType: 'temporary',
-            severity: 3,
-            blockedAt: '2025-12-27T20:15:00Z',
-            expiresAt: '2025-12-30T20:15:00Z',
-            createdBy: 'system',
-            lastHitAt: '2025-12-27T20:14:00Z',
-            hitCount: 78,
-            reasonNotes: 'User reports multiple failed login attempts from this IP.',
-        },
-        {
-            id: '11',
-            ipAddress: '91.134.200.77',
-            cidrRange: '/32',
-            scope: 'account',
-            serviceName: 'billing-service',
-            accountId: 'ACC-008',
-            reason: 'Credential stuffing detected',
-            blockType: 'temporary',
-            severity: 3,
-            blockedAt: '2025-12-27T20:15:00Z',
-            expiresAt: '2025-12-30T20:15:00Z',
-            createdBy: 'system',
-            lastHitAt: '2025-12-27T20:14:00Z',
-            hitCount: 78,
-            reasonNotes: 'User reports multiple failed login attempts from this IP.',
-        },
-    ];
+    const [filterString, setFilterString] = useState<string | null>(null);
+    const [filters, setFilters] = useState<BlockedIpFilterState>(defaultFilterState);
 
+    const { data: blockedIps, isLoading, error } = useBlockedIps(0, 10, true, filterString);
 
     return (
         <BaseLayout title="Blocked IPs">
-            <DataTable
-                columns={blockedIpColumns}
-                data={blockedIps}
-                initialColumnVisibility={{ cidrRange: false, serviceName: false, hitCount: false, createdBy: false, reasonNotes: false }}
-                toolbar={(table, initialColumnVisibility, data) => <BlockedIpToolbar table={table} initialColumnVisibility={initialColumnVisibility} data={data} />}
-            />
+            {blockedIps && (
+                <DataTable
+                    columns={blockedIpColumns}
+                    pageInfo={blockedIps}
+                    data={blockedIps.content as BlockedIpType[]}
+                    initialColumnVisibility={{
+                        cidrRange: false, serviceName: false, hitCount: false,
+                        createdBy: false, reasonNotes: false
+                    }}
+                    toolbar={(table, initialColumnVisibility) => (
+                        <BlockedIpToolbar
+                            table={table}
+                            initialColumnVisibility={initialColumnVisibility}
+                        />
+                    )}
+                    filterComponent={(table) => (<BlockedIpAdvancedFilter table={table}
+                        data={blockedIps.content as BlockedIpType[]}
+                        filters={filters}
+                        setFilters={setFilters}
+                        onFilterApplied={(appliedFilters) => {
+                            if (!appliedFilters) {
+                                console.log("Filters reset");
+                                setFilterString(null);
+                                return;
+                            }
+                            const result = processFilters(appliedFilters);
+                            console.log("Filter result:", result);
+                            setFilterString(result);
+                        }}
+                    />
+                    )}
+                />
+            )}
         </BaseLayout>
     )
 }

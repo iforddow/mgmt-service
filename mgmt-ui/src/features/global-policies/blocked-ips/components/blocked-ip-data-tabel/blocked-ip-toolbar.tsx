@@ -10,16 +10,14 @@ import type { Table } from "@tanstack/react-table";
 import type { BlockedIpType } from "../../types/blocked-ip-type";
 import { MoreHorizontal, Download, Upload, RefreshCw } from "lucide-react";
 import { DataTableViewOptions } from "@/components/custom/data-table/data-table-coumn-toggle";
-import { BlockedIpAdvancedFilter } from "./blocked-ip-advanced-filter";
 import AddBlockedIpButton from "../add-blocked-ip-form/add-blocked-ip-button";
 
 interface BlockedIpToolbarProps {
     table: Table<BlockedIpType>;
     initialColumnVisibility: Record<string, boolean>;
-    data: BlockedIpType[];
 }
 
-export function BlockedIpToolbar({ table, initialColumnVisibility, data }: BlockedIpToolbarProps) {
+export function BlockedIpToolbar({ table, initialColumnVisibility }: BlockedIpToolbarProps) {
 
     const handleExport = () => {
         // TODO: Implement export
@@ -42,7 +40,6 @@ export function BlockedIpToolbar({ table, initialColumnVisibility, data }: Block
                 <AddBlockedIpButton />
             </div>
             <div className="flex items-center gap-2">
-                <BlockedIpAdvancedFilter table={table} data={data} />
                 <DataTableViewOptions table={table} initialColumnVisibility={initialColumnVisibility} />
 
                 <DropdownMenu>

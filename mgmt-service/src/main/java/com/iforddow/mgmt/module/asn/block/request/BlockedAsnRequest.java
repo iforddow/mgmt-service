@@ -1,10 +1,7 @@
-package com.iforddow.mgmt.request;
+package com.iforddow.mgmt.module.asn.block.request;
 
 import lombok.Data;
 import lombok.NonNull;
-
-import java.time.Instant;
-import java.util.UUID;
 
 /*
 * A request class to represent blocked ASN data.

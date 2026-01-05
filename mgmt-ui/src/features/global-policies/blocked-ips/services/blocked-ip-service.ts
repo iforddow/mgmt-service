@@ -1,5 +1,7 @@
 import { API_BASE_URL } from "@/lib/config";
 import type { BlockedIpType } from "../types/blocked-ip-type";
+import { useQuery } from "@tanstack/react-query";
+import type { Page } from "@/lib/types/pageable-types";
 
 /* 
 A function to add a blocked IP by making a POST request to the API.
@@ -12,8 +14,6 @@ A function to add a blocked IP by making a POST request to the API.
 @since 2025-12-31
 */
 export async function addBlockedIp(blockedIpType: Partial<BlockedIpType>) {
-  console.log("Adding blocked IP:", blockedIpType);
-
   const response = await fetch(`${API_BASE_URL}/block/ip`, {
     method: "POST",
     headers: {
@@ -30,13 +30,63 @@ export async function addBlockedIp(blockedIpType: Partial<BlockedIpType>) {
 
   return;
 }
-// Custom hook to use IP lookup with React Query
-// export function useIpLookup(ipAddress: string, enabled: boolean = false) {
-//   return useQuery({
-//     queryKey: ["ipData", ipAddress],
-//     queryFn: () => fetchIpInfo(ipAddress),
-//     enabled: enabled && !!ipAddress,
-//     staleTime: 5 * 60 * 1000, // 5 minutes
-//     retry: 2,
-//   });
-// }
+
+export async function fetchBlockedIps({
+  page,
+  size,
+  filter,
+}: {
+  page: number;
+  size: number;
+  filter?: string | null;
+}): Promise<Page> {
+  if (page < 0 || size < 1) {
+    throw new Error("Invalid page or size parameter");
+  }
+
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
+
+  if (filter && filter.length > 0) {
+    params.append("filter", filter);
+  }
+
+  console.log("Fetching blocked IPs with params:", params.toString());
+
+  const response = await fetch(
+    `${API_BASE_URL}/block/ip?${params.toString()}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => null);
+    throw new Error(errorText || "Failed to fetch blocked IPs");
+  }
+
+  const data = await response.json();
+
+  return data as Page;
+}
+
+//Custom hook to use IP lookup with React Query
+export function useBlockedIps(
+  page: number,
+  size: number,
+  enabled: boolean = false,
+  filter?: string | null,
+) {
+  return useQuery({
+    queryKey: ["blockedIps", page, size, filter ?? ""],
+    queryFn: () => fetchBlockedIps({ page, size, filter }),
+    enabled: enabled && page >= 0 && size > 0,
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
+}

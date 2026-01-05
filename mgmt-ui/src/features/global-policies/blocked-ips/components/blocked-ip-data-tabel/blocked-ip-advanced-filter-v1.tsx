@@ -11,13 +11,14 @@ import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import type { Table } from "@tanstack/react-table";
 import { Filter, X, RotateCcw } from "lucide-react";
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useState } from "react";
 import type { BlockedIpType } from "../../types/blocked-ip-type";
 import { Badge } from "@/components/ui/badge";
 
 interface BlockedIpAdvancedFilterProps {
     table: Table<BlockedIpType>;
     data: BlockedIpType[];
+    onFilterChange?: (filter: string | null) => void;
 }
 
 interface FilterState {
@@ -44,15 +45,18 @@ const defaultFilterState: FilterState = {
     isExpired: "all",
 };
 
-export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilterProps) {
+export function BlockedIpAdvancedFilterOld({ table, data, onFilterChange }: BlockedIpAdvancedFilterProps) {
     const [open, setOpen] = useState(false);
+    // `filters` are the currently applied filters (what the table uses)
     const [filters, setFilters] = useState<FilterState>(defaultFilterState);
+    // `draftFilters` are edited in the UI and only applied when the user clicks Apply
+    const [draftFilters, setDraftFilters] = useState<FilterState>(defaultFilterState);
 
     // Extract unique values from data for filter options
     const filterOptions = useMemo(() => {
-        const cidrRanges = [...new Set(data.map((d) => d.cidrRange))].sort();
+        const cidrRanges = [...new Set(data.map((d) => d.cidrRange).filter((c): c is NonNullable<typeof c> => c != null).map(String))].sort();
         const scopes = [...new Set(data.map((d) => d.scope))].sort();
-        const serviceNames = [...new Set(data.map((d) => d.serviceName))].sort();
+        const serviceNames = [...new Set(data.map((d) => d.serviceName).filter((s): s is string => s != null))].sort();
         const reasons = [...new Set(data.map((d) => d.reason))].sort();
         const blockTypes = [...new Set(data.map((d) => d.blockType))].sort();
         const createdByOptions = [...new Set(data.map((d) => d.createdBy))].sort();
@@ -67,7 +71,7 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
         };
     }, [data]);
 
-    // Count active filters
+    // Count active (APPLIED) filters
     const activeFilterCount = useMemo(() => {
         let count = 0;
         if (filters.ipRange) count++;
@@ -82,95 +86,44 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
         return count;
     }, [filters]);
 
-    // Apply filters to table
-    const applyFilters = useCallback(() => {
-        // Clear all existing column filters first
-        table.resetColumnFilters();
+    // Helper to build filter string and emit via callback
+    const emitFilters = (f: FilterState) => {
+        const parts: string[] = [];
+        if (f.ipRange) parts.push(f.ipRange);
+        if (f.cidrRanges.length) parts.push(...f.cidrRanges);
+        if (f.scopes.length) parts.push(...f.scopes);
+        if (f.serviceNames.length) parts.push(...f.serviceNames);
+        if (f.reasons.length) parts.push(...f.reasons);
+        if (f.blockTypes.length) parts.push(...f.blockTypes);
+        if (f.createdByOptions.length) parts.push(...f.createdByOptions);
+        if (f.severityRange[0] !== 1 || f.severityRange[1] !== 5)
+            parts.push(`${f.severityRange[0]}-${f.severityRange[1]}`);
+        if (f.isExpired !== "all") parts.push(f.isExpired);
 
-        // Apply IP address filter
-        if (filters.ipRange) {
-            table.getColumn("ipAddress")?.setFilterValue(filters.ipRange);
+        const filterString = parts.join(",");
+        if (onFilterChange) {
+            onFilterChange(filterString.length ? filterString : null);
         }
+    };
 
-        // Set up custom filter function for array-based filters
-        table.setColumnFilters((prev) => {
-            const newFilters = [...prev];
-
-            // CIDR Range filter
-            if (filters.cidrRanges.length > 0) {
-                newFilters.push({
-                    id: "cidrRange",
-                    value: filters.cidrRanges,
-                });
-            }
-
-            // Scope filter
-            if (filters.scopes.length > 0) {
-                newFilters.push({
-                    id: "scope",
-                    value: filters.scopes,
-                });
-            }
-
-            // Service Name filter
-            if (filters.serviceNames.length > 0) {
-                newFilters.push({
-                    id: "serviceName",
-                    value: filters.serviceNames,
-                });
-            }
-
-            // Block Type filter
-            if (filters.blockTypes.length > 0) {
-                newFilters.push({
-                    id: "blockType",
-                    value: filters.blockTypes,
-                });
-            }
-
-            // Severity filter
-            if (filters.severityRange[0] !== 1 || filters.severityRange[1] !== 5) {
-                newFilters.push({
-                    id: "severity",
-                    value: filters.severityRange,
-                });
-            }
-
-            // Created By filter
-            if (filters.createdByOptions.length > 0) {
-                newFilters.push({
-                    id: "createdBy",
-                    value: filters.createdByOptions,
-                });
-            }
-
-            // Is Expired filter
-            if (filters.isExpired !== "all") {
-                newFilters.push({
-                    id: "isExpired",
-                    value: filters.isExpired === "expired",
-                });
-            }
-
-            return newFilters;
-        });
-    }, [table, filters]);
-
-    // Apply filters when they change
-    useEffect(() => {
-        applyFilters();
-    }, [applyFilters]);
-
+    // Reset applied filters (clears what's currently active)
     const resetFilters = () => {
         setFilters(defaultFilterState);
+        setDraftFilters(defaultFilterState);
         table.resetColumnFilters();
+        if (onFilterChange) onFilterChange(null);
+    };
+
+    // Reset only the draft (UI) filters without applying
+    const resetDraft = () => {
+        setDraftFilters(filters);
     };
 
     const toggleArrayFilter = (
         key: keyof Pick<FilterState, "cidrRanges" | "scopes" | "serviceNames" | "reasons" | "blockTypes" | "createdByOptions">,
         value: string
     ) => {
-        setFilters((prev) => {
+        setDraftFilters((prev) => {
             const current = prev[key];
             const newValues = current.includes(value)
                 ? current.filter((v) => v !== value)
@@ -180,7 +133,13 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
     };
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover
+            open={open}
+            onOpenChange={(val) => {
+                if (val) setDraftFilters(filters);
+                setOpen(val);
+            }}
+        >
             <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="h-8 gap-2">
                     <Filter className="size-4" />
@@ -201,12 +160,23 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
                                 variant="ghost"
                                 size="sm"
                                 className="h-7 px-2 text-xs"
-                                onClick={resetFilters}
+                                onClick={() => {
+                                    // Clear applied filters immediately
+                                    resetFilters();
+                                }}
                             >
                                 <RotateCcw className="size-3 mr-1" />
-                                Reset
+                                Clear
                             </Button>
                         )}
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => resetDraft()}
+                        >
+                            Reset
+                        </Button>
                         <Button
                             variant="ghost"
                             size="sm"
@@ -226,9 +196,9 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
                         </Label>
                         <Input
                             placeholder="Filter by IP address..."
-                            value={filters.ipRange}
+                            value={draftFilters.ipRange}
                             onChange={(e) =>
-                                setFilters((prev) => ({ ...prev, ipRange: e.target.value }))
+                                setDraftFilters((prev) => ({ ...prev, ipRange: e.target.value }))
                             }
                             className="h-8"
                         />
@@ -248,7 +218,7 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
                                     className="flex items-center gap-2 text-sm cursor-pointer"
                                 >
                                     <Checkbox
-                                        checked={filters.cidrRanges.includes(cidr)}
+                                        checked={draftFilters.cidrRanges.includes(cidr)}
                                         onCheckedChange={() => toggleArrayFilter("cidrRanges", cidr)}
                                         className="h-4 w-4"
                                     />
@@ -272,7 +242,7 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
                                     className="flex items-center gap-2 text-sm cursor-pointer"
                                 >
                                     <Checkbox
-                                        checked={filters.scopes.includes(scope)}
+                                        checked={draftFilters.scopes.includes(scope)}
                                         onCheckedChange={() => toggleArrayFilter("scopes", scope)}
                                         className="h-4 w-4"
                                     />
@@ -296,7 +266,7 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
                                     className="flex items-center gap-2 text-sm cursor-pointer"
                                 >
                                     <Checkbox
-                                        checked={filters.blockTypes.includes(type)}
+                                        checked={draftFilters.blockTypes.includes(type)}
                                         onCheckedChange={() => toggleArrayFilter("blockTypes", type)}
                                         className="h-4 w-4"
                                     />
@@ -315,16 +285,16 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
                                 Severity
                             </Label>
                             <span className="text-xs text-muted-foreground">
-                                {filters.severityRange[0]} - {filters.severityRange[1]}
+                                {draftFilters.severityRange[0]} - {draftFilters.severityRange[1]}
                             </span>
                         </div>
                         <Slider
                             min={1}
                             max={5}
                             step={1}
-                            value={filters.severityRange}
+                            value={draftFilters.severityRange}
                             onValueChange={(value) =>
-                                setFilters((prev) => ({
+                                setDraftFilters((prev) => ({
                                     ...prev,
                                     severityRange: value as [number, number],
                                 }))
@@ -351,7 +321,7 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
                                     className="flex items-center gap-2 text-sm cursor-pointer"
                                 >
                                     <Checkbox
-                                        checked={filters.serviceNames.includes(service)}
+                                        checked={draftFilters.serviceNames.includes(service)}
                                         onCheckedChange={() =>
                                             toggleArrayFilter("serviceNames", service)
                                         }
@@ -377,7 +347,7 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
                                     className="flex items-center gap-2 text-sm cursor-pointer"
                                 >
                                     <Checkbox
-                                        checked={filters.createdByOptions.includes(creator)}
+                                        checked={draftFilters.createdByOptions.includes(creator)}
                                         onCheckedChange={() =>
                                             toggleArrayFilter("createdByOptions", creator)
                                         }
@@ -403,9 +373,9 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
                                     className="flex items-center gap-2 text-sm cursor-pointer"
                                 >
                                     <Checkbox
-                                        checked={filters.isExpired === status}
+                                        checked={draftFilters.isExpired === status}
                                         onCheckedChange={() =>
-                                            setFilters((prev) => ({ ...prev, isExpired: status }))
+                                            setDraftFilters((prev) => ({ ...prev, isExpired: status }))
                                         }
                                         className="h-4 w-4 rounded-full"
                                     />
@@ -414,6 +384,42 @@ export function BlockedIpAdvancedFilter({ table, data }: BlockedIpAdvancedFilter
                             ))}
                         </div>
                     </div>
+                </div>
+
+                {/* Footer actions: Cancel / Reset Draft / Apply */}
+                <div className="flex items-center justify-end gap-2 mt-4">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                            // Cancel: discard draft changes
+                            setDraftFilters(filters);
+                            setOpen(false);
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                            // Reset draft only
+                            setDraftFilters(defaultFilterState);
+                        }}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        size="sm"
+                        onClick={() => {
+                            // Apply draft -> becomes active filters
+                            setFilters(draftFilters);
+                            emitFilters(draftFilters);
+                            setOpen(false);
+                        }}
+                    >
+                        Apply
+                    </Button>
                 </div>
             </PopoverContent>
         </Popover>

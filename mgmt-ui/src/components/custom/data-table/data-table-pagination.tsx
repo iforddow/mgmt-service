@@ -17,11 +17,17 @@ import {
 
 interface DataTablePaginationProps<TData> {
     table: Table<TData>
+    pageInfo?: any;
 }
 
 export function DataTablePagination<TData>({
     table,
+    pageInfo,
 }: DataTablePaginationProps<TData>) {
+
+    const currentPage = pageInfo ? pageInfo.number : table.getState().pagination.pageIndex;
+    const totalPages = pageInfo ? pageInfo.totalPages : table.getPageCount();
+
     const hasSelectColumn = (() => {
         try {
             const cols = table.getAllColumns ? table.getAllColumns() : []
@@ -62,7 +68,7 @@ export function DataTablePagination<TData>({
                             <SelectValue placeholder={table.getState().pagination.pageSize} />
                         </SelectTrigger>
                         <SelectContent side="top">
-                            {[10, 20, 25, 30, 40, 50].map((pageSize) => (
+                            {[10, 20, 30].map((pageSize) => (
                                 <SelectItem key={pageSize} value={`${pageSize}`}>
                                     {pageSize}
                                 </SelectItem>

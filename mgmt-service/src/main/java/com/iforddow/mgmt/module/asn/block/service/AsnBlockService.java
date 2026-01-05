@@ -1,11 +1,11 @@
-package com.iforddow.mgmt.service;
+package com.iforddow.mgmt.module.asn.block.service;
 
 import com.iforddow.mgmt.common.exception.ResourceNotFoundException;
-import com.iforddow.mgmt.dto.BlockedAsnDTO;
-import com.iforddow.mgmt.entity.jpa.BlockedAsn;
-import com.iforddow.mgmt.repository.BlockedAsnRepository;
-import com.iforddow.mgmt.repository.BlockedIpRepository;
-import com.iforddow.mgmt.request.BlockedAsnRequest;
+import com.iforddow.mgmt.module.asn.block.dto.BlockedAsnDTO;
+import com.iforddow.mgmt.module.asn.block.entity.jpa.BlockedAsn;
+import com.iforddow.mgmt.module.asn.block.repository.BlockedAsnRepository;
+import com.iforddow.mgmt.module.ip.block.repository.BlockedIpRepository;
+import com.iforddow.mgmt.module.asn.block.request.BlockedAsnRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +25,7 @@ import java.util.UUID;
 * */
 @Service
 @RequiredArgsConstructor
-public class BlockService {
+public class AsnBlockService {
 
     private final BlockedIpRepository blockedIpRepository;
     private final BlockedAsnRepository blockedAsnRepository;

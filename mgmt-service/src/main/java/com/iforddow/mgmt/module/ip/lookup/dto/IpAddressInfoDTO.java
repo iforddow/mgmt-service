@@ -1,4 +1,4 @@
-package com.iforddow.mgmt.dto;
+package com.iforddow.mgmt.module.ip.lookup.dto;
 
 import com.maxmind.geoip2.model.AsnResponse;
 import com.maxmind.geoip2.model.CityResponse;

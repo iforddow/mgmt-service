@@ -1,9 +1,9 @@
-package com.iforddow.mgmt.service;
+package com.iforddow.mgmt.module.ip.lookup.service;
 
 import com.iforddow.mgmt.common.exception.AsnNotFoundException;
 import com.iforddow.mgmt.common.service.GeoAsnService;
 import com.iforddow.mgmt.common.service.GeoLocationService;
-import com.iforddow.mgmt.dto.IpAddressInfoDTO;
+import com.iforddow.mgmt.module.ip.lookup.dto.IpAddressInfoDTO;
 import com.maxmind.geoip2.exception.AddressNotFoundException;
 import com.maxmind.geoip2.model.AsnResponse;
 import com.maxmind.geoip2.model.CityResponse;

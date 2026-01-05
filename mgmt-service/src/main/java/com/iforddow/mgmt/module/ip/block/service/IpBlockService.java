@@ -1,11 +1,12 @@
-package com.iforddow.mgmt.service;
+package com.iforddow.mgmt.module.ip.block.service;
 
 import com.iforddow.mgmt.common.exception.BadRequestException;
 import com.iforddow.mgmt.common.utility.FilterParser;
-import com.iforddow.mgmt.dto.BlockedIpDTO;
-import com.iforddow.mgmt.entity.jpa.BlockedIp;
-import com.iforddow.mgmt.repository.BlockedIpRepository;
-import com.iforddow.mgmt.request.BlockedIpRequest;
+import com.iforddow.mgmt.module.ip.block.dto.BlockedIpDTO;
+import com.iforddow.mgmt.module.ip.block.entity.jpa.BlockedIp;
+import com.iforddow.mgmt.module.ip.block.filter.BlockedIpFilter;
+import com.iforddow.mgmt.module.ip.block.repository.BlockedIpRepository;
+import com.iforddow.mgmt.module.ip.block.request.BlockedIpRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,12 @@ import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.Map;
 
+/**
+* A service to manage blocked IPs.
+*
+* @author IFD
+* @since 2025-12-23
+* */
 @Service
 @RequiredArgsConstructor
 public class IpBlockService {
@@ -43,14 +50,13 @@ public class IpBlockService {
         FilterParser filterParser = new FilterParser();
 
         Map<String, String> params = filterParser.parseFilter(filter);
-        Specification<BlockedIp> spec = buildSpecification(params);
+        Specification<BlockedIp> spec = BlockedIpFilter.build(params);
 
-
-        return blockedIpRepository.findAll(pageable)
+        return blockedIpRepository.findAll(spec, pageable)
                 .map(BlockedIpDTO::new);
     }
 
-    /*
+    /**
      * A method to add a new blocked IP.
      *
      * @author IFD

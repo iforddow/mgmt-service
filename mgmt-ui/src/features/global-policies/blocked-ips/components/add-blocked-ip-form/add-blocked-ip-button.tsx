@@ -20,7 +20,7 @@ export default function AddBlockedIpButton() {
             <DialogDescription>
                 Use the form below to add a new blocked IP address or range to the system.
             </DialogDescription>
-            <DialogContent className="sm:max-w-200">
+            <DialogContent className="sm:max-w-200" onInteractOutside={(e) => { e.preventDefault() }}>
                 <AddBlockedIpForm setDialogState={setIsOpen} />
             </DialogContent>
         </Dialog>

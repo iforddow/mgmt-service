@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { BlockedIpType } from "../../types/blocked-ip-type";
 import { DataTableColumnHeader } from "@/components/custom/data-table/data-table-column-header";
 import { MeterBar } from "@/components/custom/meter-bar";
-import { IconBinoculars, IconCheck, IconX } from "@tabler/icons-react";
+import { IconBinoculars } from "@tabler/icons-react";
 
 export const blockedIpColumns: ColumnDef<BlockedIpType>[] = [
     // {
@@ -187,33 +187,6 @@ export const blockedIpColumns: ColumnDef<BlockedIpType>[] = [
             return (
                 <DataTableColumnHeader column={column} title="Hit Count" />
             )
-        },
-    },
-    {
-        id: 'isExpired',
-        accessorFn: (row) => row.expiresAt ?? null,
-        header: ({ column }) => {
-            return (
-                <DataTableColumnHeader column={column} title="Expired" />
-            )
-        },
-        cell: ({ getValue }) => {
-            const expiresAt = getValue() as string | null;
-            const isExpired = expiresAt ? new Date(expiresAt) <= new Date() : false;
-            return isExpired ? <IconCheck size={16} color="green" /> : <IconX size={16} color="red" />;
-        },
-        filterFn: (row, id, filterValue: boolean) => {
-            const expiresAt = row.getValue(id) as string | null;
-            const isExpired = expiresAt ? new Date(expiresAt) <= new Date() : false;
-            if (filterValue === null) return true;
-            return isExpired === filterValue;
-        },
-        sortingFn: (rowA, rowB, id) => {
-            const expiresAtA = rowA.getValue(id) as string | null;
-            const isExpiredA = expiresAtA ? new Date(expiresAtA) <= new Date() : false;
-            const expiresAtB = rowB.getValue(id) as string | null;
-            const isExpiredB = expiresAtB ? new Date(expiresAtB) <= new Date() : false;
-            return (isExpiredA === isExpiredB) ? 0 : isExpiredA ? -1 : 1;
         },
     }
 ];
