@@ -1,23 +1,17 @@
 package com.iforddow.mgmt.service;
 
-import com.iforddow.mgmt.common.exception.BadRequestException;
 import com.iforddow.mgmt.common.exception.ResourceNotFoundException;
 import com.iforddow.mgmt.dto.BlockedAsnDTO;
-import com.iforddow.mgmt.dto.BlockedIpDTO;
 import com.iforddow.mgmt.entity.jpa.BlockedAsn;
-import com.iforddow.mgmt.entity.jpa.BlockedIp;
 import com.iforddow.mgmt.repository.BlockedAsnRepository;
 import com.iforddow.mgmt.repository.BlockedIpRepository;
 import com.iforddow.mgmt.request.BlockedAsnRequest;
-import com.iforddow.mgmt.request.BlockedIpRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,17 +39,6 @@ public class BlockService {
     public Page<BlockedAsnDTO> getBlockedAsnList(Pageable pageable) {
         return blockedAsnRepository.findAll(pageable)
                 .map(BlockedAsnDTO::new);
-    }
-
-    /**
-    * A method to get the list of blocked IPs with pagination.
-    *
-    * @author IFD
-    * @since 2025-12-23
-    * */
-    public Page<BlockedIpDTO> getBlockedIpList(Pageable pageable) {
-        return blockedIpRepository.findAll(pageable)
-                .map(BlockedIpDTO::new);
     }
 
     /*
@@ -146,46 +129,6 @@ public class BlockService {
         blockedAsn.setExpiresAt(Instant.parse(blockedAsnRequest.getExpiresAt()));
 
         blockedAsnRepository.save(blockedAsn);
-
-    }
-
-    /*
-    * A method to add a new blocked IP.
-    *
-    * @author IFD
-    * @since 2025-12-30
-    * */
-    @Transactional
-    public void addBlockedIp(BlockedIpRequest blockedIpRequest) {
-
-        try {
-            InetAddress ipAddr = InetAddress.getByName(blockedIpRequest.getIpAddress());
-
-            Instant expiresAt = null;
-            if (blockedIpRequest.getExpiresAt() != null && !blockedIpRequest.getExpiresAt().isBlank()) {
-                expiresAt = Instant.parse(blockedIpRequest.getExpiresAt());
-            }
-
-            BlockedIp blockedIp = BlockedIp.builder()
-                    .ipAddress(ipAddr)
-                    .cidrRange(blockedIpRequest.getCidrRange())
-                    .scope(blockedIpRequest.getScope())
-                    .serviceName(blockedIpRequest.getServiceName())
-                    .reason(blockedIpRequest.getReason())
-                    .reasonNotes(blockedIpRequest.getReasonNotes())
-                    .blockType(blockedIpRequest.getBlockType())
-                    .severity(blockedIpRequest.getSeverity().shortValue())
-                    .blockedAt(Instant.now())
-                    .expiresAt(expiresAt)
-                    .createdBy("Test User")
-                    .build();
-
-            blockedIpRepository.save(blockedIp);
-        } catch (UnknownHostException e) {
-            throw new BadRequestException("Invalid IP address");
-        } catch (Exception e) {
-            throw new BadRequestException("Error adding blocked IP");
-        }
 
     }
 }
