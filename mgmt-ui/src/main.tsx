@@ -10,6 +10,7 @@ import BlockedAsnPage from "./features/global-policies/blocked-asns/blocked-asn-
 import BlockedIpPage from "./features/global-policies/blocked-ips/blocked-ip-page";
 import IpLookupPage from "./features/tools/ip-lookup/ip-lookup-page";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import GeneralSettingsPage from "./features/settings/pages/general/general-settings-page";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,7 +30,10 @@ createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/services/authentication" element={<AuthenticationServicePage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/settings">
+            <Route index element={<SettingsPage />} />
+            <Route path="general" element={<GeneralSettingsPage />} />
+          </Route>
           <Route path="/policies/blocked-ips" element={<BlockedIpPage />} />
           <Route path="/policies/blocked-asns" element={<BlockedAsnPage />} />
           <Route path="/tools/ip-lookup" element={<IpLookupPage />} />

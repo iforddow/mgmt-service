@@ -3,13 +3,10 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { SettingFormSchema } from "./schema/settings-form-schema";
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLabelContent, FieldLegend, FieldSet } from "@/components/ui/field";
+import { FieldError, FieldLabel, FieldLabelContent } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { FileDropzone } from "@/components/ui/dropzone";
-import { FileList } from "@/components/ui/file-list";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import SettingImageUpload from "./components/setting-image-upload";
 import { Button } from "@/components/ui/button";
-import { HelpCircle } from "lucide-react";
 
 export default function SettingsForm() {
 
@@ -27,98 +24,116 @@ export default function SettingsForm() {
     });
 
     const faviconInputRef = useRef<HTMLInputElement>(null);
-    const [uploadedFavicon, setUploadedFiles] = useState<File[]>([]);
-    const [faviconProgress, setFileProgresses] = useState<Record<string, number>>(
+    const [uploadedFavicon, setUploadedFavicon] = useState<File[]>([]);
+    const [faviconProgress, setFaviconProgress] = useState<Record<string, number>>(
+        {}
+    );
+
+    const logoInputRef = useRef<HTMLInputElement>(null);
+    const [uploadedLogo, setUploadedLogo] = useState<File[]>([]);
+    const [logoProgress, setLogoProgress] = useState<Record<string, number>>(
         {}
     );
 
     return (
-        <div className="bg-accent rounded-md p-4">
-            <form>
-                <FieldGroup>
-                    <FieldSet>
-                        <FieldLegend>System Settings</FieldLegend>
-                        <FieldDescription>Configure the basic system settings such as system name, company name, favicon, and logo.</FieldDescription>
-                        <FieldGroup >
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <Controller
-                                    name="systemName"
-                                    control={form.control}
-                                    render={({ field, fieldState }) => (
-                                        <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor="systemName-field">
-                                                <FieldLabelContent label={"System Name"} tooltipText="Enter the name of the system." />
-                                            </FieldLabel>
-                                            <Input
-                                                {...field}
-                                                id="systemName-field"
-                                                aria-invalid={fieldState.invalid}
-                                                placeholder="Enter system name"
-                                                autoComplete="off"
-                                            />
-                                            {fieldState.invalid && (
-                                                <FieldError errors={[fieldState.error]} />
-                                            )}
-                                        </Field>
-                                    )}
-                                />
-                                <Controller
-                                    name="companyName"
-                                    control={form.control}
-                                    render={({ field, fieldState }) => (
-                                        <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor="companyName-field">
-                                                <FieldLabelContent label={"Company Name"} tooltipText="Enter the name of the company." />
-                                            </FieldLabel>
-                                            <Input
-                                                {...field}
-                                                id="companyName-field"
-                                                aria-invalid={fieldState.invalid}
-                                                placeholder="Enter company name"
-                                                autoComplete="off"
-                                            />
-                                            {fieldState.invalid && (
-                                                <FieldError errors={[fieldState.error]} />
-                                            )}
-                                        </Field>
-                                    )}
-                                />
-                                <div>
-                                    <FileDropzone
-                                        fileInputRef={fileInputRef}
-                                        handleBoxClick={handleBoxClick}
-                                        handleDragOver={handleDragOver}
-                                        handleDrop={handleDrop}
-                                        handleFileSelect={handleFileSelect}
-                                        label="Select a Favicon"
-                                        maxFileSizeMB={2}
+        <form className="space-y-8">
+            {/* Identity Section */}
+            <div className="space-y-4">
+                <div>
+                    <h3 className="text-base font-medium">Identity</h3>
+                    <p className="text-sm text-muted-foreground">Basic information about your system and company.</p>
+                </div>
+                <div className="rounded-lg border border-border/50 p-6 space-y-6">
+                    <Controller
+                        name="systemName"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <div className="grid grid-cols-[180px_1fr] gap-6 items-start">
+                                <FieldLabel htmlFor="systemName-field" className="pt-2 text-sm font-medium">
+                                    <FieldLabelContent label="System Name" tooltipText="Enter the name of the system." />
+                                </FieldLabel>
+                                <div className="space-y-1.5">
+                                    <Input
+                                        {...field}
+                                        id="systemName-field"
+                                        aria-invalid={fieldState.invalid}
+                                        placeholder="Enter system name"
+                                        autoComplete="off"
                                     />
-                                    <FileList
-                                        uploadedFiles={uploadedFiles}
-                                        fileProgresses={fileProgresses}
-                                        removeFile={removeFile}
-                                    />
-                                </div>
-                                <div>
-                                    <FileDropzone
-                                        fileInputRef={fileInputRef}
-                                        handleBoxClick={handleBoxClick}
-                                        handleDragOver={handleDragOver}
-                                        handleDrop={handleDrop}
-                                        handleFileSelect={handleFileSelect}
-                                    />
-                                    <FileList
-                                        uploadedFiles={uploadedFiles}
-                                        fileProgresses={fileProgresses}
-                                        removeFile={removeFile}
-                                    />
+                                    <p className="text-xs text-muted-foreground">This name will be displayed throughout the application.</p>
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                                 </div>
                             </div>
-                        </FieldGroup>
-                    </FieldSet>
-                </FieldGroup>
-            </form>
-        </div>
+                        )}
+                    />
+                    <div className="border-t border-border/50" />
+                    <Controller
+                        name="companyName"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <div className="grid grid-cols-[180px_1fr] gap-6 items-start">
+                                <FieldLabel htmlFor="companyName-field" className="pt-2 text-sm font-medium">
+                                    <FieldLabelContent label="Company Name" tooltipText="Enter the name of the company." />
+                                </FieldLabel>
+                                <div className="space-y-1.5">
+                                    <Input
+                                        {...field}
+                                        id="companyName-field"
+                                        aria-invalid={fieldState.invalid}
+                                        placeholder="Enter company name"
+                                        autoComplete="off"
+                                    />
+                                    <p className="text-xs text-muted-foreground">Your company name for branding purposes.</p>
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                </div>
+                            </div>
+                        )}
+                    />
+                </div>
+            </div>
+
+            {/* Branding Section */}
+            <div className="space-y-4">
+                <div>
+                    <h3 className="text-base font-medium">Branding</h3>
+                    <p className="text-sm text-muted-foreground">Customize your system's visual identity with logos and icons.</p>
+                </div>
+                <div className="rounded-lg border border-border/50 p-6 space-y-6">
+                    <SettingImageUpload
+                        fileInputRef={faviconInputRef}
+                        setUploadedFiles={setUploadedFavicon}
+                        setFileProgresses={setFaviconProgress}
+                        uploadedFiles={uploadedFavicon}
+                        fileProgresses={faviconProgress}
+                        maxFiles={1}
+                        fileSizeType="KB"
+                        maxFileSize={100}
+                        type="favicon"
+                        recommendedSize="32x32 pixels"
+                    />
+                    <div className="border-t border-border/50" />
+                    <SettingImageUpload
+                        fileInputRef={logoInputRef}
+                        setUploadedFiles={setUploadedLogo}
+                        setFileProgresses={setLogoProgress}
+                        uploadedFiles={uploadedLogo}
+                        fileProgresses={logoProgress}
+                        maxFiles={1}
+                        fileSizeType="KB"
+                        maxFileSize={250}
+                        type="logo"
+                    />
+                </div>
+                <div className="flex justify-end gap-2">
+                    <Button variant="outline" type="reset" disabled={isLoading || !form.formState.isDirty} onClick={() => form.reset()}>
+                        Reset Form
+                    </Button>
+                    <Button type="submit" disabled={isLoading || !form.formState.isDirty || !form.formState.isValid}>
+                        {isLoading ? "Saving..." : "Save Changes"}
+                    </Button>
+                </div>
+            </div>
+        </form>
     );
 
 }

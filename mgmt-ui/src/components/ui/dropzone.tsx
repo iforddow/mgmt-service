@@ -1,6 +1,5 @@
 import { Upload } from "lucide-react";
 import React, { type RefObject } from "react";
-import { Label } from "./label";
 
 interface FileDropzoneProps {
     fileInputRef: RefObject<HTMLInputElement | null>;
@@ -8,8 +7,9 @@ interface FileDropzoneProps {
     handleDragOver: (e: React.DragEvent) => void;
     handleDrop: (e: React.DragEvent) => void;
     handleFileSelect: (files: FileList | null) => void;
+    includeLabel?: boolean;
     label?: string;
-    maxFileSizeMB?: number;
+    maxFileSize?: number;
     fileSizeType?: "MB" | "KB";
 }
 
@@ -19,13 +19,14 @@ export function FileDropzone({
     handleDragOver,
     handleDrop,
     handleFileSelect,
+    includeLabel = true,
     label = "Upload an image",
-    maxFileSizeMB = 4,
+    maxFileSize = 4,
     fileSizeType = "MB",
 }: FileDropzoneProps) {
     return (
         <div>
-            <Label className="mb-3">{label}</Label>
+            {includeLabel && <span className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 mb-3">{label}</span>}
             <div
                 className="border-2 border-dashed border-border rounded-md p-8 flex flex-col items-center justify-center text-center cursor-pointer"
                 onClick={handleBoxClick}
@@ -47,7 +48,7 @@ export function FileDropzone({
                     >
                         click to browse
                     </label>{" "}
-                    ({maxFileSizeMB}{fileSizeType} max)
+                    ({maxFileSize}{fileSizeType} max)
                 </p>
                 <input
                     type="file"
@@ -55,7 +56,10 @@ export function FileDropzone({
                     ref={fileInputRef}
                     className="hidden"
                     accept="image/*"
-                    onChange={(e) => handleFileSelect(e.target.files)}
+                    onChange={(e) => {
+                        handleFileSelect(e.target.files);
+                        e.target.value = "";
+                    }}
                 />
             </div>
         </div>

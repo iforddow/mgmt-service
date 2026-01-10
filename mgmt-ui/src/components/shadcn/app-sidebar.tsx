@@ -15,7 +15,6 @@ import {
 } from "lucide-react"
 
 import { NavMain } from "@/components/shadcn/nav-main"
-import { NavProjects } from "@/components/shadcn/nav-projects"
 import { NavUser } from "@/components/shadcn/nav-user"
 import { TeamSwitcher } from "@/components/shadcn/team-switcher"
 import {
@@ -141,7 +140,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

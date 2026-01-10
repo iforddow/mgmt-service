@@ -7,7 +7,6 @@ import com.iforddow.mgmt.module.system.settings.settings.entity.jpa.SystemSettin
 import com.iforddow.mgmt.module.system.settings.settings.repository.SystemSettingRepository;
 import com.iforddow.mgmt.module.system.settings.settings.request.SystemSettingRequest;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,13 +69,13 @@ public class SystemSettingService {
 
                 if(systemSetting.getFaviconUrl() != null) {
                     storageService.replaceFile(systemSetting.getFaviconUrl(), systemSettingRequest.getFavicon(), true);
-                    settingsChanged = true;
                 }   else {
                     MultipartFile favicon = systemSettingRequest.getFavicon();
                     String faviconUrl = storageService.uploadFile(favicon, true);
                     systemSetting.setFaviconUrl(faviconUrl);
-                    settingsChanged = true;
                 }
+
+                settingsChanged = true;
             }
 
             // Handle logo upload/replacement
@@ -84,13 +83,12 @@ public class SystemSettingService {
 
                 if(systemSetting.getLogoUrl() != null) {
                     storageService.replaceFile(systemSetting.getLogoUrl(), systemSettingRequest.getLogo(), true);
-                    settingsChanged = true;
                 }   else {
                     MultipartFile logo = systemSettingRequest.getLogo();
                     String logoUrl = storageService.uploadFile(logo, true);
                     systemSetting.setLogoUrl(logoUrl);
-                    settingsChanged = true;
                 }
+                settingsChanged = true;
 
             }
 
