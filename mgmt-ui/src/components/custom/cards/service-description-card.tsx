@@ -1,6 +1,6 @@
-import { Badge } from "../ui/badge";
-import { Card, CardAction, CardFooter, CardHeader, CardTitle } from "../ui/card";
-import StatusIndicator from "../ui/status-indicator";
+import { Badge } from "../../ui/badge";
+import { Card, CardAction, CardFooter, CardHeader, CardTitle } from "../../ui/card";
+import StatusIndicator from "../../ui/status-indicator";
 import { KeyRound } from "lucide-react";
 
 interface ServiceDescriptionCardProps {

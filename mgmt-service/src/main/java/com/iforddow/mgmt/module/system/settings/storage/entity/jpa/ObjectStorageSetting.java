@@ -37,15 +37,15 @@ public class ObjectStorageSetting {
     @Column(name = "bucket_name", nullable = false)
     private String bucketName;
 
-    @Column(name = "public_url", nullable = false)
-    private String publicUrl;
-
     @Column(name = "updated_at")
     private Instant updatedAt;
 
     @ColumnDefault("now()")
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+
+    @Column(name = "public_url", nullable = false)
+    private String publicUrl;
 
 
 }

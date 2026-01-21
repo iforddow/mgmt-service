@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { IconHelpCircle } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 
-export default function SettingImageUpload({ fileInputRef, setUploadedFiles, setFileProgresses, uploadedFiles, fileProgresses, maxFileSize, maxFiles, fileSizeType, type, recommendedSize }: {
+export default function ImageUpload({ fileInputRef, setUploadedFiles, setFileProgresses, uploadedFiles, fileProgresses, maxFileSize, maxFiles, fileSizeType, type, recommendedSize, onFilesChange }: {
     fileInputRef: React.RefObject<HTMLInputElement | null>;
     setUploadedFiles: React.Dispatch<React.SetStateAction<File[]>>;
     setFileProgresses: React.Dispatch<React.SetStateAction<{ [key: string]: number }>>;
@@ -15,6 +15,7 @@ export default function SettingImageUpload({ fileInputRef, setUploadedFiles, set
     fileSizeType?: "MB" | "KB";
     type: "logo" | "favicon";
     recommendedSize?: string;
+    onFilesChange?: (files: File[]) => void;
 }) {
 
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -55,7 +56,11 @@ export default function SettingImageUpload({ fileInputRef, setUploadedFiles, set
 
         const newFiles = Array.from(files);
 
-        setUploadedFiles((prev) => [...prev, ...newFiles]);
+        setUploadedFiles((prev) => {
+            const updated = [...prev, ...newFiles];
+            onFilesChange?.(updated);
+            return updated;
+        });
 
 
         newFiles.forEach((file) => {
@@ -91,7 +96,11 @@ export default function SettingImageUpload({ fileInputRef, setUploadedFiles, set
     };
 
     const removeFile = (filename: string) => {
-        setUploadedFiles((prev) => prev.filter((file) => file.name !== filename));
+        setUploadedFiles((prev) => {
+            const updated = prev.filter((file) => file.name !== filename);
+            onFilesChange?.(updated);
+            return updated;
+        });
         setFileProgresses((prev) => {
             const newProgresses = { ...prev };
             delete newProgresses[filename];
@@ -100,7 +109,7 @@ export default function SettingImageUpload({ fileInputRef, setUploadedFiles, set
     };
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 w-full ">
             <div className="flex items-center justify-between gap-2 w-full">
                 <span className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">
                     Select a {type.charAt(0).toUpperCase() + type.slice(1)}

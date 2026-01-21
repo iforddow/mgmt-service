@@ -1,6 +1,7 @@
 package com.iforddow.mgmt.common.service;
 
 import com.iforddow.mgmt.common.config.StorageConfig;
+import com.iforddow.mgmt.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,12 +14,18 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 /**
-* A service for handling file storage operations using S3-compatible storage.
+* A service for handling file storage operations using local file
+* directory and S3-compatible storage.
 *
 * @author IFD
 * @since 2026-01-04
@@ -28,6 +35,27 @@ import java.util.UUID;
 public class StorageService {
 
     private final StorageConfig storageConfig;
+    private static final String LOCAL_STORAGE_DIR = "uploads";
+
+    /**
+    * A private method to get the local storage directory path.
+    *
+    * @return Path to the local storage directory.
+    * @throws IOException If an error occurs while creating the directory.
+    *
+    * @author IFD
+    * @since 2026-01-10
+    * */
+    private Path getStorageDirectory() throws IOException {
+        String userHome = System.getProperty("user.home");
+        Path storageDir = Paths.get(userHome, ".atlvon-mgmt", LOCAL_STORAGE_DIR);
+
+        if (!Files.exists(storageDir)) {
+            Files.createDirectories(storageDir);
+        }
+
+        return storageDir;
+    }
 
     /**
     * A private method to create and configure an S3 client.
@@ -67,6 +95,11 @@ public class StorageService {
     * @since 2026-01-04
     * */
     public String uploadFile(MultipartFile file, boolean isPublic) throws IOException {
+
+        if (storageConfig.externalSetupIncomplete()) {
+            return uploadFileLocally(file);
+        }
+
         try (S3Client s3Client = createS3Client()) {
 
             // Verify bucket exists
@@ -77,6 +110,8 @@ public class StorageService {
             } catch (NoSuchBucketException e) {
                 throw new IOException("Bucket does not exist: " + storageConfig.getBucketName(), e);
             }
+
+
 
             String keyName = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
@@ -94,11 +129,36 @@ public class StorageService {
                     RequestBody.fromBytes(file.getBytes())
             );
 
-            return String.format("%s/%s", storageConfig.getPublicUrl(), keyName);
+            return String.format(storageConfig.getPublicUrl() + keyName);
 
         } catch (S3Exception e) {
             throw new IOException("Failed to upload file to S3: " + e.awsErrorDetails().errorMessage(), e);
         }
+    }
+
+    /**
+    * A private method to upload a file to local storage when S3 is not configured.
+    *
+    * @param file The MultipartFile to be uploaded.
+    * @return The URL of the uploaded file in local storage.
+    * @throws IOException If an error occurs during upload.
+    *
+    * @author IFD
+    * @since 2026-01-10
+    * */
+    private String uploadFileLocally(MultipartFile file) throws IOException {
+        Path storageDir = getStorageDirectory();
+
+        if (!Files.exists(storageDir)) {
+            Files.createDirectories(storageDir);
+        }
+
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        Path filePath = storageDir.resolve(fileName);
+
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return "/storage/local/" + fileName;
     }
 
     /**
@@ -111,6 +171,12 @@ public class StorageService {
     * @since 2026-01-04
     * */
     public void deleteFile(String keyName) throws IOException {
+
+        if (storageConfig.externalSetupIncomplete()) {
+            deleteFileLocally(keyName);
+            return;
+        }
+
         try (S3Client s3Client = createS3Client()) {
 
             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
@@ -126,19 +192,35 @@ public class StorageService {
     }
 
     /**
-    * A method to replace an existing file in S3 storage with a new file.
+    * A private method to delete a file from local storage.
     *
-    * @param keyName The key name of the file to be replaced.
-    * @param newFile The new MultipartFile to upload.
-    * @param isPublic A boolean indicating if the new file should be publicly accessible.
-    * @throws IOException If an error occurs during the replacement process.
+    * @param fileName The name of the file to be deleted.
+    * @throws IOException If an error occurs during deletion.
     *
     * @author IFD
-    * @since 2026-01-04
+    * @since 2026-01-10
     * */
-    public void replaceFile(String keyName, MultipartFile newFile, boolean isPublic) throws IOException {
+    private void deleteFileLocally(String fileName) throws IOException {
+        String extractedFileName = fileName.substring(fileName.lastIndexOf("/") + 1);
+        Path filePath = getStorageDirectory().resolve(extractedFileName);
+        Files.deleteIfExists(filePath);
+    }
+
+    /**
+     * A method to replace an existing file in S3 storage with a new file.
+     *
+     * @param keyName The key name of the file to be replaced.
+     * @param newFile The new MultipartFile to upload.
+     * @param isPublic A boolean indicating if the new file should be publicly accessible.
+     * @return The URL of the newly uploaded file.
+     * @throws IOException If an error occurs during the replacement process.
+     *
+     * @author IFD
+     * @since 2026-01-04
+     * */
+    public String replaceFile(String keyName, MultipartFile newFile, boolean isPublic) throws IOException {
         deleteFile(keyName);
-        uploadFile(newFile, isPublic);
+        return uploadFile(newFile, isPublic);
     }
 
     /**
@@ -152,6 +234,11 @@ public class StorageService {
     * @since 2026-01-04
     * */
     public byte[] getFile(String keyName) throws IOException {
+
+        if (storageConfig.externalSetupIncomplete()) {
+            return getFileLocally(keyName);
+        }
+
         try (S3Client s3Client = createS3Client()) {
 
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
@@ -163,9 +250,68 @@ public class StorageService {
             return objectBytes.asByteArray();
 
         } catch (NoSuchKeyException e) {
-            throw new IOException("File not found: " + keyName, e);
+
+            return getFileLocally(keyName);
+
         } catch (S3Exception e) {
             throw new IOException("Failed to retrieve file from S3: " + e.awsErrorDetails().errorMessage(), e);
+        }
+    }
+
+    /**
+    * A private method to retrieve a file from local storage.
+    *
+    * @param fileName The name of the file to be retrieved.
+    * @return A byte array containing the file data.
+    * @throws IOException If an error occurs during retrieval.
+    *
+    * @author IFD
+    * @since 2026-01-10
+    * */
+    private byte[] getFileLocally(String fileName) throws IOException {
+        String extractedFileName = fileName.substring(fileName.lastIndexOf("/") + 1);
+        Path filePath = getStorageDirectory().resolve(extractedFileName);
+
+        if(!Files.exists(filePath)) {
+            throw new ResourceNotFoundException("File not found: " + extractedFileName);
+        }
+
+        return Files.readAllBytes(filePath);
+    }
+
+    /*
+    * A method to check if a file exists in S3 storage.
+    *
+    * @param path The path of the file to check.
+    * @return true if the file exists, false otherwise.
+    *
+    * @author IFD
+    * @since 2026-01-11
+    * */
+    public boolean checkFileExists(String path) throws IOException {
+
+        if (storageConfig.externalSetupIncomplete()) {
+            String fileName = path.substring(path.lastIndexOf("/") + 1);
+            Path filePath = getStorageDirectory().resolve(fileName);
+            return Files.exists(filePath);
+        }
+
+        try (S3Client s3Client = createS3Client()) {
+
+            String keyName = path.substring(path.lastIndexOf("/") + 1);
+
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                    .bucket(storageConfig.getBucketName())
+                    .key(keyName)
+                    .build();
+
+            s3Client.headObject(headObjectRequest);
+            return true;
+
+        } catch (NoSuchKeyException e) {
+            throw new FileNotFoundException("File not found: " + e.awsErrorDetails().errorMessage());
+        } catch (S3Exception e) {
+            throw new IOException("Failed to check file existence in S3: " + e.awsErrorDetails().errorMessage(), e);
         }
     }
 
@@ -179,6 +325,6 @@ public class StorageService {
     * @since 2026-01-04
     * */
     public String getFileUrl(String keyName) {
-        return String.format("%s/%s", storageConfig.getPublicUrl(), keyName);
+        return String.format(keyName);
     }
 }

@@ -1,4 +1,4 @@
-import ServiceDescriptionCard from "@/components/custom/service-description-card";
+import ServiceDescriptionCard from "@/components/custom/cards/service-description-card";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconTrendingUp } from "@tabler/icons-react";
 

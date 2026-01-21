@@ -5,7 +5,6 @@ import com.iforddow.mgmt.common.service.StorageService;
 import com.iforddow.mgmt.module.system.settings.settings.dto.SystemSettingDTO;
 import com.iforddow.mgmt.module.system.settings.settings.entity.jpa.SystemSetting;
 import com.iforddow.mgmt.module.system.settings.settings.repository.SystemSettingRepository;
-import com.iforddow.mgmt.module.system.settings.settings.request.SystemSettingRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +25,7 @@ public class SystemSettingService {
 
     private final SystemSettingRepository systemSettingRepository;
     private final StorageService storageService;
+    private SystemSettingDTO cachedStorageSettings;
 
     /**
     * A method to get system settings.
@@ -35,9 +35,12 @@ public class SystemSettingService {
     * */
     public SystemSettingDTO getSystemSettings() {
 
-        return systemSettingRepository.findById(0).map(SystemSettingDTO::new).orElseThrow(
-                () -> new ResourceNotFoundException("System settings not found")
-        );
+        if (cachedStorageSettings == null) {
+            cachedStorageSettings = systemSettingRepository.findById(0)
+                    .map(SystemSettingDTO::new)
+                    .orElseThrow(() -> new ResourceNotFoundException("Storage settings not found"));
+        }
+        return cachedStorageSettings;
 
     }
 
@@ -48,53 +51,61 @@ public class SystemSettingService {
     * @since 2026-01-04
     * */
     @Transactional
-    public void updateSystemSettings(SystemSettingRequest systemSettingRequest) throws IOException {
+    public void updateSystemSettings(String systemName, String companyName, MultipartFile favicon, MultipartFile logo) throws IOException {
 
             boolean settingsChanged = false;
 
             SystemSetting systemSetting = systemSettingRepository.findById(0).orElseThrow(() -> new ResourceNotFoundException("System setting not found"));
 
-            if(!systemSettingRequest.getSystemName().equals(systemSetting.getSystemName())) {
-                systemSetting.setSystemName(systemSettingRequest.getSystemName());
+            if(!systemName.equals(systemSetting.getSystemName())) {
+                systemSetting.setSystemName(systemName);
                 settingsChanged = true;
             }
 
-            if(!systemSettingRequest.getCompanyName().equals(systemSetting.getCompanyName())) {
-                systemSetting.setCompanyName(systemSettingRequest.getCompanyName());
+            if(!companyName.equals(systemSetting.getCompanyName())) {
+                systemSetting.setCompanyName(companyName);
                 settingsChanged = true;
             }
 
-            // Handle favicon upload/replacement
-            if(systemSettingRequest.getFavicon() != null) {
+        // Handle favicon upload/replacement
+        if(favicon != null) {
 
-                if(systemSetting.getFaviconUrl() != null) {
-                    storageService.replaceFile(systemSetting.getFaviconUrl(), systemSettingRequest.getFavicon(), true);
-                }   else {
-                    MultipartFile favicon = systemSettingRequest.getFavicon();
-                    String faviconUrl = storageService.uploadFile(favicon, true);
-                    systemSetting.setFaviconUrl(faviconUrl);
-                }
+            if(systemSetting.getFaviconUrl() != null && !systemSetting.getFaviconUrl().isBlank()) {
 
-                settingsChanged = true;
+                String keyFromUrl = systemSetting.getFaviconUrl().substring(systemSetting.getFaviconUrl().lastIndexOf('/') + 1);
+
+                String newFaviconUrl = storageService.replaceFile(keyFromUrl, favicon, true);
+                systemSetting.setFaviconUrl(newFaviconUrl);
+            } else {
+                String faviconUrl = storageService.uploadFile(favicon, true);
+                systemSetting.setFaviconUrl(faviconUrl);
             }
 
-            // Handle logo upload/replacement
-            if(systemSettingRequest.getLogo() != null) {
+            settingsChanged = true;
+        }
 
-                if(systemSetting.getLogoUrl() != null) {
-                    storageService.replaceFile(systemSetting.getLogoUrl(), systemSettingRequest.getLogo(), true);
-                }   else {
-                    MultipartFile logo = systemSettingRequest.getLogo();
-                    String logoUrl = storageService.uploadFile(logo, true);
-                    systemSetting.setLogoUrl(logoUrl);
-                }
-                settingsChanged = true;
+        // Handle logo upload/replacement
+        if(logo != null) {
 
+            if(systemSetting.getLogoUrl() != null && !systemSetting.getLogoUrl().isBlank()) {
+
+                String keyFromUrl = systemSetting.getLogoUrl().substring(systemSetting.getLogoUrl().lastIndexOf('/') + 1);
+
+                String newLogoUrl = storageService.replaceFile(keyFromUrl, logo, true);
+                systemSetting.setLogoUrl(newLogoUrl);
+            } else {
+                String logoUrl = storageService.uploadFile(logo, true);
+                systemSetting.setLogoUrl(logoUrl);
             }
+            settingsChanged = true;
+
+        }
 
             if(settingsChanged) {
                 systemSetting.setUpdatedAt(Instant.now());
             }
+
+            cachedStorageSettings = null;
 
             systemSettingRepository.save(systemSetting);
 

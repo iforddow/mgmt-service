@@ -34,7 +34,7 @@ export default function SettingsPage() {
                     icon={<Server />}
                 />
                 <SettingsCard
-                    href="/settings/general"
+                    href="/settings/storage"
                     title="Storage"
                     description="Manage storage options and configurations."
                     icon={<Database />}

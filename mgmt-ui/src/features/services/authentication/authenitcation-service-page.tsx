@@ -4,6 +4,7 @@ import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { ChartLine, LayoutDashboard, Settings, User } from "lucide-react";
 import AuthDashboardTab from "./components/auth-dashboard-tab";
 import { useSearchParams } from "react-router-dom";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
 
 export default function AuthenticationServicePage() {
 
@@ -16,7 +17,26 @@ export default function AuthenticationServicePage() {
     }
 
     return (
-        <BaseLayout title="Authentication Service">
+        <BaseLayout
+            breadcrumbs={
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink asChild>
+                                <a href="/">Dashboard</a>
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            Services
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage className="cursor-pointer" onClick={() => window.location.reload()}>Authentication</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
+            }>
 
             <Tabs defaultValue={tab} className="gap-4" onValueChange={(value) => {
                 setTab(value);

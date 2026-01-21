@@ -26,7 +26,7 @@ public class StorageSettingController {
     * @author IFD
     * @since 2026-01-04
     * */
-    @GetMapping("/")
+    @GetMapping()
     public ResponseEntity<StorageSettingDTO> getStorageSettings() {
 
         StorageSettingDTO storageSettingDTO = storageSettingService.getStorageSettings();
@@ -40,13 +40,44 @@ public class StorageSettingController {
     * @author IFD
     * @since 2026-01-04
     * */
-    @PatchMapping("/")
+    @PatchMapping()
     public ResponseEntity<?> updateStorageSettings(@RequestBody StorageSettingRequest storageSettingRequest) {
 
         storageSettingService.updateStorageSettings(storageSettingRequest);
 
         return ResponseEntity.noContent().build();
 
+    }
+
+    /**
+    * A endpoint to delete the storage settings.
+    *
+    * @author IFD
+    * @since 2026-01-10
+    * */
+    @DeleteMapping()
+    public ResponseEntity<?> deleteStorageSettings() {
+
+        storageSettingService.clearStorageSettings();
+
+        return ResponseEntity.noContent().build();
+
+    }
+
+    /**
+    * A test endpoint to verify external storage connection.
+    *
+    * @author IFD
+    * @since 2026-01-10
+    * */
+    @GetMapping("/test-connection")
+    public ResponseEntity<?> testConnection() {
+
+        if(storageSettingService.testExternalStorageConnection()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok().build();
     }
 
 }

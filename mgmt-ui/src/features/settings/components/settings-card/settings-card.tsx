@@ -11,7 +11,7 @@ export default function SettingsCard({ href, title, description, icon }: Setting
 
     return (
         <Card onClick={() => window.location.href = href} className="bg-card/40 max-h-80 flex flex-col hover:bg-accent/60 border-0 cursor-pointer">
-            <CardHeader>
+            <CardHeader className="gap-0">
                 <span className="flex items-center gap-3">
                     <span className="bg-primary p-2 rounded-md [&>svg]:size-5">{icon}</span>
                     <div>

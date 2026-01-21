@@ -55,11 +55,10 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({
         {shouldAnimate && (
           <span
             className={cn(
-              "absolute inline-flex rounded-full opacity-75",
+              "absolute inline-flex rounded-full opacity-75 animate-ping-slow",
               sizeClasses.ping,
               colors.ping
             )}
-            style={{ animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite' }}
           />
         )}
         <span
